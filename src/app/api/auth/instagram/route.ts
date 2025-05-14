@@ -1,21 +1,34 @@
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
+import type { Database } from '@/lib/supabase/types'
 
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url)
   const code = requestUrl.searchParams.get('code')
 
   if (code) {
-    const supabase = createRouteHandlerClient({ cookies })
+    const cookieStore = cookies()
+    const supabase = createServerClient<Database>(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get: (name: string) => cookieStore.get(name)?.value,
+          set: (name: string, value: string, options: { expires?: Date }) => {
+            cookieStore.set({ name, value, ...options })
+          },
+          remove: (name: string, options: { expires?: Date }) => {
+            cookieStore.set({ name, value: '', ...options })
+          }
+        }
+      }
+    )
     
     try {
-      // Exchange code for access token
-      const response = await fetch('https://api.instagram.com/oauth/access_token', {
+      // Exchange the code for an access token
+      const tokenResponse = await fetch('https://api.instagram.com/oauth/access_token', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
         body: new URLSearchParams({
           client_id: process.env.INSTAGRAM_CLIENT_ID!,
           client_secret: process.env.INSTAGRAM_CLIENT_SECRET!,
@@ -23,27 +36,25 @@ export async function GET(request: Request) {
           redirect_uri: process.env.INSTAGRAM_REDIRECT_URI!,
           code,
         }),
-      })
+      });
 
-      const data = await response.json()
-
-      if (data.error) {
-        throw new Error(data.error_description || 'Failed to get Instagram access token')
+      const shortLivedData = await tokenResponse.json();
+      
+      if (!shortLivedData.access_token) {
+        throw new Error('Failed to get Instagram access token');
       }
-
-      // Get long-lived access token
-      const longLivedTokenResponse = await fetch(
-        `https://graph.instagram.com/access_token?${new URLSearchParams({
-          grant_type: 'ig_exchange_token',
-          client_secret: process.env.INSTAGRAM_CLIENT_SECRET!,
-          access_token: data.access_token,
-        })}`
-      )
-
-      const longLivedData = await longLivedTokenResponse.json()
-
-      if (longLivedData.error) {
-        throw new Error(longLivedData.error.message || 'Failed to get long-lived access token')
+      
+      // Exchange short-lived token for a long-lived token
+      const longLivedResponse = await fetch(
+        `https://graph.instagram.com/access_token?grant_type=ig_exchange_token&client_secret=${
+          process.env.INSTAGRAM_CLIENT_SECRET
+        }&access_token=${shortLivedData.access_token}`
+      );
+      
+      const longLivedData = await longLivedResponse.json();
+      
+      if (!longLivedData.access_token) {
+        throw new Error('Failed to get long-lived Instagram access token');
       }
 
       // Store the tokens in Supabase
