@@ -1,13 +1,4 @@
 {
-  "buildCommand": "pnpm build",
-  "devCommand": "pnpm dev",
-  "installCommand": "pnpm install",
   "framework": "nextjs",
-  "regions": ["fra1"],
-  "functions": {
-    "app/api/**/*": {
-      "runtime": "edge",
-      "memory": 256
-    }
-  }
+  "regions": ["fra1"]
 } 
