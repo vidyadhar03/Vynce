@@ -42,6 +42,14 @@ export type UserInsight = {
   updated_at: string
 }
 
+export type HealthCheck = {
+  id: string
+  created_at: string
+  updated_at: string
+  status: string
+  message: string | null
+}
+
 export type Database = {
   public: {
     Tables: {
@@ -64,6 +72,11 @@ export type Database = {
         Row: UserInsight
         Insert: Omit<UserInsight, 'id' | 'created_at' | 'updated_at'>
         Update: Partial<Omit<UserInsight, 'id' | 'created_at' | 'updated_at'>>
+      }
+      health_check: {
+        Row: HealthCheck
+        Insert: Omit<HealthCheck, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<HealthCheck, 'id' | 'created_at' | 'updated_at'>>
       }
     }
     Views: {
