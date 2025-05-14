@@ -1,22 +1,9 @@
 #!/usr/bin/env sh
-. "$(dirname -- "$0")/_/husky.sh"
+set -e
 
 echo "Running pre-push checks..."
 
-# Run type checking
-echo "Running type checking..."
-pnpm type-check || { echo "Type checking failed"; exit 1; }
-
-# Run linting
-echo "Running linting..."
-pnpm lint || { echo "Linting failed"; exit 1; }
-
-# Run tests
-echo "Running tests..."
-pnpm test || { echo "Tests failed"; exit 1; }
-
-# Build the project
-echo "Building project..."
-pnpm build || { echo "Build failed"; exit 1; }
-
-echo "All pre-push checks passed!" 
+npm run type-check     # tsc --noEmit
+npm run lint           # next lint
+npm test               # jest
+npm run build          # next build
