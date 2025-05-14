@@ -22,7 +22,6 @@ A PWA that lets users connect Spotify to generate fun insight-cards and share th
 ### Prerequisites
 
 - Node.js 18+
-- pnpm (`npm install -g pnpm`)
 - Supabase account
 - Spotify Developer account
 - Instagram Basic Display API access
@@ -70,12 +69,12 @@ supabase db push
 
 1. Install dependencies:
 ```bash
-pnpm install
+npm install
 ```
 
 2. Start the development server:
 ```bash
-pnpm dev
+npm run dev
 ```
 
 3. Open [http://localhost:3000](http://localhost:3000) in your browser.
@@ -91,16 +90,16 @@ Visit [http://localhost:3000/api/supabase-status](http://localhost:3000/api/supa
 ### Code Style
 
 - ESLint and Prettier are configured
-- Husky pre-commit hooks ensure code quality
-- Run `pnpm lint` to check for issues
-- Run `pnpm format` to format code
+- Husky pre-push hooks ensure code quality
+- Run `npm run lint` to check for issues
+- Run `npm run format` to format code
 
 ### Testing
 
 ```bash
-pnpm test        # Run all tests
-pnpm test:watch  # Run tests in watch mode
-pnpm playwright  # Run E2E tests with Playwright
+npm test        # Run all tests
+npm test -- --watch  # Run tests in watch mode
+npx playwright test  # Run E2E tests with Playwright
 ```
 
 ### Authentication
@@ -116,8 +115,8 @@ The app uses Supabase Auth with:
 The PWA features are enabled in production only. To test:
 
 ```bash
-pnpm build
-pnpm start
+npm run build
+npm start
 ```
 
 ## Local QA Checklist

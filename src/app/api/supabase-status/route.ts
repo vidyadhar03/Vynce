@@ -25,7 +25,7 @@ export async function GET() {
     const vynceUserExists = !usersError;
     
     // Get more info about the table if connected
-    let tableData = {
+    const tableData = {
       count: vynceUserExists ? 1 : 0,
       names: vynceUserExists ? ['Vynce_User'] : [],
       vynceUserExists
